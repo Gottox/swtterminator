@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Swtterminator
+Bundle-SymbolicName: swtterminator; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: swtterminator.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: .,
+ lib/salma-hayek.jar,
+ lib/terminator.jar
+Bundle-NativeCode: lib/libposix.jnilib; lib/libpty.jnilib;
+    osname=macosx; processor=x86; processor=x86_64,
+  *

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Terminator"
+            id="swtterminator">
+      </category>
+      <view
+            allowMultiple="true"
+            category="swtterminator"
+            class="swtterminator.views.TerminalHolderRestorable"
+            icon="icons/terminator-16.png"
+            id="swtterminator.views.TerminalHolderRestorable"
+            name="Terminator"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="true"
+            class="swtterminator.views.TerminalHolder"
+            icon="icons/terminator-16.png"
+            id="swtterminator.views.TerminalHolder"
+            name="Terminator"
+            restorable="false">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               ratio="0.5"
+               relative="org.eclipse.ui.views.TaskList"
+               relationship="right"
+               id="swtterminator.views.SWTTerminator">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+
+
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               label="Terminator">
+            <command
+                  commandId="swtterminator.commands.newTerminal"
+                  icon="icons/terminator-16.png"
+                  label="New Terminal"
+                  style="push">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="swtterminator.commands.NewTerminal"
+            id="swtterminator.commands.newTerminal"
+            name="New Terminal">
+      </command>
+   </extension>
+
+</plugin>
