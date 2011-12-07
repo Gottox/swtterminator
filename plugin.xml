@@ -70,5 +70,19 @@
             name="New Terminal">
       </command>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="swtterminator.preferences.Preferences"
+            id="swtterminator.preferences.Preferences"
+            name="Terminator">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="swtterminator.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
 
 </plugin>

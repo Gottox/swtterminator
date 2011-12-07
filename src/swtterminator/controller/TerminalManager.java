@@ -5,18 +5,41 @@ import java.util.HashSet;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import e.gui.MenuItemProvider;
+import e.util.Preferences.Listener;
 import swtterminator.views.TerminalHolder;
 import swtterminator.views.TerminalHolderRestorable;
 import terminator.view.JTerminalPane;
 import terminator.view.TerminalPaneHost;
+import terminator.Terminator;
 
-public class TerminalManager implements TerminalPaneHost {
+public class TerminalManager implements TerminalPaneHost, Listener {
+	class NewTerminalAction extends Action {
+		private TerminalHolder terminal;
+
+		public NewTerminalAction(TerminalHolder terminal) {
+			this.terminal = terminal;
+			
+			this.setText("New Terminal");
+			this.setToolTipText("Open new Terminal");
+			this.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+				getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
+		}
+		
+		public void run() {
+			TerminalManager.this.newTerminal(terminal, false);
+		}
+	}
+	
 	public static final String RESTORABLE_ID = TerminalHolderRestorable.ID;
 	public static final String VOLATILE_ID = TerminalHolder.ID;
 	
@@ -25,6 +48,10 @@ public class TerminalManager implements TerminalPaneHost {
 
 	public static TerminalManager getDefault() {
 		return instance;
+	}
+	
+	public TerminalManager() {
+		Terminator.getPreferences().addPreferencesListener(this);
 	}
 
 	@Override
@@ -97,14 +124,14 @@ public class TerminalManager implements TerminalPaneHost {
 		IWorkbenchPage page;
 		page = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 				.getActivePage();
-//		String id = null;
-//		if (terminals.size() != 0) {
-//			id = "id	" + terminals.size() + System.currentTimeMillis();
-//		}
-//		System.out.println(id);
+		String id = null;
+		if (terminals.size() != 0) {
+			id = "id	" + terminals.size() + System.currentTimeMillis();
+		}
+		System.out.println(id);
 
 		try {
-			page.showView(isStable ? VOLATILE_ID : RESTORABLE_ID, null, IWorkbenchPage.VIEW_ACTIVATE);
+			page.showView(isStable ? RESTORABLE_ID : VOLATILE_ID, id, IWorkbenchPage.VIEW_ACTIVATE);
 		} catch (PartInitException e) {
 			errorMessage("Cannot initiate new Terminal");
 		}
@@ -114,4 +141,19 @@ public class TerminalManager implements TerminalPaneHost {
 		Status status = new Status(IStatus.ERROR, TerminalHolder.ID, text);
 		StatusManager.getManager().handle(status, StatusManager.SHOW);
 	}
+	
+	public void fillPulldown(TerminalHolder terminal, IMenuManager manager) {
+		manager.add(new NewTerminalAction(terminal));
+	}
+	
+	public void fillToolBar(TerminalHolder terminal, IToolBarManager manager) {
+		manager.add(new NewTerminalAction(terminal));
+	}
+
+	@Override
+	public void preferencesChanged() {
+		for(TerminalHolder t : terminals) {
+			t.getTerminal().optionsDidChange();
+		}
+	} 
 }

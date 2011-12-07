@@ -2,6 +2,7 @@ package swtterminator.views;
 
 import java.awt.Frame;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.eclipse.jface.action.IMenuListener;
@@ -11,13 +12,18 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.ViewPart;
 
+import swtterminator.awtcompat.EmbeddedSwingComposite;
 import swtterminator.controller.TerminalManager;
 import terminator.view.JTerminalPane;
 
@@ -38,29 +44,58 @@ import terminator.view.JTerminalPane;
 
 public class TerminalHolder extends ViewPart {
 
-	private static final class HolderFocus implements FocusListener {
-		private JPanel pane;
-
-		public HolderFocus(JPanel pane) {
-			this.pane = pane;
+	private static class CleanResizeListener extends ControlAdapter {
+		  private Rectangle oldRect = null;
+		  public void controlResized(ControlEvent e) {
+		      // Prevent garbage from Swing lags during resize. Fill exposed areas 
+		      // with background color. 
+		      Composite composite = (Composite)e.widget;
+		      Rectangle newRect = composite.getClientArea();
+		      if (oldRect != null) {
+		          int heightDelta = newRect.height - oldRect.height;
+		          int widthDelta = newRect.width - oldRect.width;
+		          if ((heightDelta > 0) || (widthDelta > 0)) {
+		              GC gc = new GC(composite);
+		              try {
+		                  gc.fillRectangle(newRect.x, oldRect.height, newRect.width, heightDelta);
+		                  gc.fillRectangle(oldRect.width, newRect.y, widthDelta, newRect.height);
+		              } finally {
+		                  gc.dispose();
+		              }
+		          }
+		      }
+		      oldRect = newRect;
+		  }
 		}
-
-		@Override
-		public void focusLost(FocusEvent e) {
-		}
-
-		@Override
-		public void focusGained(FocusEvent e) {
-			pane.requestFocus();
-		}
-	}
-
+	
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "swtterminator.views.TerminalHolder";
 
 	private TerminalManager manager;
+
+	private Frame frame;
+
+	private JTerminalPane terminal;
+
+	private EmbeddedSwingComposite composite;
+
+	public JTerminalPane getTerminal() {
+		return terminal;
+	}
+
+	public void setTerminal(JTerminalPane terminal) {
+		this.terminal = terminal;
+	}
+
+	public Frame getFrame() {
+		return frame;
+	}
+
+	public void setFrame(Frame frame) {
+		this.frame = frame;
+	}
 
 	/**
 	 * The constructor.
@@ -74,17 +109,17 @@ public class TerminalHolder extends ViewPart {
 	 * it.
 	 */
 	public void createPartControl(Composite parent) {
-		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
-	    Frame frame = SWT_AWT.new_Frame(composite);
-
-		JTerminalPane terminal = JTerminalPane.newCommandWithName("/bin/bash",
-				"Test", "/tmp");
-		parent.addFocusListener(new HolderFocus(terminal));
-		frame.add(terminal);
+		terminal = JTerminalPane.newShell();
+		this.composite = new EmbeddedSwingComposite(parent, 0) {
+			@Override
+			protected JComponent createSwingComponent() {
+				return terminal;
+			}
+		};
+		this.composite.populate();
 		terminal.start(manager);
 		hookContextMenu();
 		contributeToActionBars();
-		
 		manager.registerTerminal(this);
 	}
 
@@ -114,7 +149,7 @@ public class TerminalHolder extends ViewPart {
 	}
 
 	private void fillLocalPullDown(IMenuManager menumanager) {
-		// manager.fillPulldown(menumanager);
+		manager.fillPulldown(this, menumanager);
 	}
 
 	private void fillContextMenu(IMenuManager menumanager) {
@@ -124,7 +159,7 @@ public class TerminalHolder extends ViewPart {
 	}
 
 	private void fillLocalToolBar(IToolBarManager menumanager) {
-		// manager.fillToolBar(this, menumanager);
+		manager.fillToolBar(this, menumanager);
 	}
 
 	@Override
