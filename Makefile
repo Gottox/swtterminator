@@ -14,8 +14,16 @@ clean:
 lib/%.jar: ../% lib
 	jar cf $@ -C $</.generated/classes .
 	
-lib/%.jnilib:
-	cp `find ${SRC} -name \`echo $@ | sed "s/lib\///"\`` lib
+lib/%.jnilib: ../% lib
+	cp `find ${SRC} -name \`basename $@\`` lib
 	
 lib:
 	mkdir -p lib
+	
+../%:
+	if [ -e "$@" ] then \
+		cd $@ && svn update \
+	else \
+		svn checkout http://software.jessies.org/svn/`basename $@`/trunk/ $@ \
+	fi
+	make -C $@
