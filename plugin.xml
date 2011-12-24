@@ -49,26 +49,18 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            allPopups="false"
-            locationURI="menu:org.eclipse.ui.main.menu">
-         <menu
-               label="Terminator">
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="swtterminal.toolbar">
             <command
                   commandId="swtterminator.commands.newTerminal"
                   icon="icons/terminator-16.png"
-                  label="New Terminal"
-                  style="push">
+                  id="swtterminator.commands.newTerminal"
+                  label="Terminal"
+                  tooltip="Opens new Terminal">
             </command>
-         </menu>
+         </toolbar>
       </menuContribution>
-   </extension>
-   <extension
-         point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="swtterminator.commands.NewTerminal"
-            id="swtterminator.commands.newTerminal"
-            name="New Terminal">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -83,6 +75,23 @@
       <initializer
             class="swtterminator.preferences.PreferenceInitializer">
       </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="swtterminator.commands.newTerminal"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+t">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="swtterminator.commands.NewTerminal"
+            id="swtterminator.commands.newTerminal"
+            name="New Terminal">
+      </command>
    </extension>
 
 </plugin>

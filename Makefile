@@ -14,7 +14,7 @@ clean:
 lib/%.jar: ../% lib
 	jar cf $@ -C $</.generated/classes .
 	
-lib/%.jnilib: ../% lib
+lib/%.jnilib: ${SRC} lib
 	cp `find ${SRC} -name \`basename $@\`` lib
 	
 lib:

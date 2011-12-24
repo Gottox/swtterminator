@@ -8,7 +8,7 @@
  * Contributors:
  *     SAS Institute - initial API and implementation
  *******************************************************************************/
-package swtterminator.awtcompat;
+package org.pathvisio.gui.swt.awt;
 
 import java.awt.AWTEvent;
 import java.awt.Dialog;

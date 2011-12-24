@@ -10,6 +10,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.events.ControlAdapter;
@@ -22,8 +24,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.ViewPart;
+import org.pathvisio.gui.swt.awt.EmbeddedSwingComposite;
 
-import swtterminator.awtcompat.EmbeddedSwingComposite;
 import swtterminator.controller.TerminalManager;
 import terminator.view.JTerminalPane;
 
@@ -43,30 +45,6 @@ import terminator.view.JTerminalPane;
  */
 
 public class TerminalHolder extends ViewPart {
-
-	private static class CleanResizeListener extends ControlAdapter {
-		  private Rectangle oldRect = null;
-		  public void controlResized(ControlEvent e) {
-		      // Prevent garbage from Swing lags during resize. Fill exposed areas 
-		      // with background color. 
-		      Composite composite = (Composite)e.widget;
-		      Rectangle newRect = composite.getClientArea();
-		      if (oldRect != null) {
-		          int heightDelta = newRect.height - oldRect.height;
-		          int widthDelta = newRect.width - oldRect.width;
-		          if ((heightDelta > 0) || (widthDelta > 0)) {
-		              GC gc = new GC(composite);
-		              try {
-		                  gc.fillRectangle(newRect.x, oldRect.height, newRect.width, heightDelta);
-		                  gc.fillRectangle(oldRect.width, newRect.y, widthDelta, newRect.height);
-		              } finally {
-		                  gc.dispose();
-		              }
-		          }
-		      }
-		      oldRect = newRect;
-		  }
-		}
 	
 	/**
 	 * The ID of the view as specified by the extension.
@@ -110,13 +88,13 @@ public class TerminalHolder extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		terminal = JTerminalPane.newShell();
-		this.composite = new EmbeddedSwingComposite(parent, 0) {
+		composite = new EmbeddedSwingComposite(parent, 0) {
 			@Override
 			protected JComponent createSwingComponent() {
 				return terminal;
 			}
 		};
-		this.composite.populate();
+		composite.populate();
 		terminal.start(manager);
 		hookContextMenu();
 		contributeToActionBars();
@@ -164,7 +142,7 @@ public class TerminalHolder extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
-
+		composite.setFocus();
+		terminal.grabFocus();
 	}
 }
