@@ -21,7 +21,8 @@ At the moment, we're using a combination of Makefiles and Eclipse for building. 
 
 License
 -------
-swtterminator is Licensed under MIT/X License
-swtterminator.awtcompat is licensed under EPL
+swtterminator is licensed under GPL  
+terminator is licensed under GPL  
+swtterminator.awtcompat is licensed under EPL  
 
 [![Flattr this](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=Gottox&url=https://github.com/Gottox/swtterminator&title=swtterminator&language=en_GB&tags=github&category=software)
